@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/cart-service/cart-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cart-service/cart-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cart-service/cart-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cart-service/cart-server/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cart-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cart-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/gateway-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/gateway-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-service/order-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-service/order-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-service/order-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-service/order-server/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/payment-service/payment-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/payment-service/payment-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/payment-service/payment-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/payment-service/payment-server/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/payment-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/payment-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/product-service/product-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/product-service/product-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/product-service/product-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/product-service/product-server/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/product-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/product-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/user-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/user-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/user-service/user-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/user-service/user-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/user-service/user-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/user-service/user-server/src/main/resources" charset="UTF-8" />
+  </component>
+</project>
