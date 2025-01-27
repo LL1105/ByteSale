@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sale.mapper.PayBillMapper">
+
+    <resultMap id="BaseResultMap" type="com.sale.model.PayBill">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="payNumber" column="pay_number" jdbcType="VARCHAR"/>
+            <result property="outOrderNo" column="out_order_no" jdbcType="VARCHAR"/>
+            <result property="payChannel" column="pay_channel" jdbcType="VARCHAR"/>
+            <result property="payScene" column="pay_scene" jdbcType="VARCHAR"/>
+            <result property="subject" column="subject" jdbcType="VARCHAR"/>
+            <result property="tradeNumber" column="trade_number" jdbcType="VARCHAR"/>
+            <result property="payAmount" column="pay_amount" jdbcType="DECIMAL"/>
+            <result property="payBillType" column="pay_bill_type" jdbcType="INTEGER"/>
+            <result property="payBillStatus" column="pay_bill_status" jdbcType="INTEGER"/>
+            <result property="payTime" column="pay_time" jdbcType="TIMESTAMP"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="editTime" column="edit_time" jdbcType="TIMESTAMP"/>
+            <result property="status" column="status" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,pay_number,out_order_no,
+        pay_channel,pay_scene,subject,
+        trade_number,pay_amount,pay_bill_type,
+        pay_bill_status,pay_time,create_time,
+        edit_time,status
+    </sql>
+</mapper>
