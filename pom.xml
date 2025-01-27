@@ -71,6 +71,19 @@
                 <artifactId>mysql-connector-java</artifactId>
                 <version>8.0.27</version>
             </dependency>
+
+            <!-- 单元测试框架 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>2.3.12.RELEASE</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.32</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
