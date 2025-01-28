@@ -1,5 +1,6 @@
 CREATE
 DATABASE IF NOT EXISTS byte_sale_payment CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE byte_sale_payment;
 DROP TABLE IF EXISTS pay_bill;
 CREATE TABLE `pay_bill`
 (
