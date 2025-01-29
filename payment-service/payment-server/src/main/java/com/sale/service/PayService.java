@@ -175,6 +175,7 @@ public class PayService {
     }
 
     public String refund(RefundDto refundDto) {
+        // 校验退款与账单状态
         PayBill payBill = payBillMapper.selectOne(Wrappers.lambdaQuery(PayBill.class)
                 .eq(PayBill::getOutOrderNo, refundDto.getOrderNumber()));
         if (Objects.isNull(payBill)) {
@@ -188,10 +189,11 @@ public class PayService {
         if (refundDto.getAmount().compareTo(payBill.getPayAmount()) > 0) {
             throw new RuntimeException(BaseCode.REFUND_AMOUNT_GREATER_THAN_PAY_AMOUNT.getMsg());
         }
-
+        // 调用第三方退款
         PayStrategyHandler payStrategyHandler = payStrategyHandlerMap.get(refundDto.getChannel());
         RefundResult refundResult =
                 payStrategyHandler.refund(refundDto.getOrderNumber(), refundDto.getAmount(), refundDto.getReason());
+        // 退款账单持久化
         if (refundResult.isSuccess()) {
             RefundBill refundBill = new RefundBill();
             refundBill.setId(uidGenerator.getUID());
