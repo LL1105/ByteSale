@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.sale.dto.*;
+import com.sale.enums.BaseCode;
 import com.sale.enums.PayBillStatus;
 import com.sale.model.PayBill;
 import com.sale.model.RefundBill;
@@ -18,7 +19,6 @@ import com.sale.vo.NotifyVo;
 import com.sale.vo.PayBillVo;
 import com.sale.vo.TradeCheckVo;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,17 +54,19 @@ public class PayService {
      * */
     @Transactional(rollbackFor = Exception.class)
     public String commonPay(PayDto payDto) {
-        long uid = uidGenerator.getUID();
-        System.out.println(uid);
+        // 幂等性校验
+        // TODO：需要加分布式锁
         LambdaQueryWrapper<PayBill> payBillLambdaQueryWrapper =
                 Wrappers.lambdaQuery(PayBill.class).eq(PayBill::getOutOrderNo, payDto.getOrderNumber());
         PayBill payBill = payBillMapper.selectOne(payBillLambdaQueryWrapper);
         if (Objects.nonNull(payBill) && !Objects.equals(payBill.getPayBillStatus(), PayBillStatus.NO_PAY.getCode())) {
-            throw new RuntimeException();
+            throw new RuntimeException(BaseCode.PAY_BILL_IS_NOT_NO_PAY.getMsg());
         }
+        // 调用第三方支付获取支付页面链接
         PayStrategyHandler payStrategyHandler = payStrategyHandlerMap.get(payDto.getChannel());
         PayResult pay = payStrategyHandler.pay(String.valueOf(payDto.getOrderNumber()), payDto.getPrice(),
                 payDto.getSubject(),payDto.getNotifyUrl(),payDto.getReturnUrl());
+        // 持久化账单
         if (pay.isSuccess()) {
             payBill = new PayBill();
             payBill.setId(uidGenerator.getUID());
@@ -78,7 +80,6 @@ public class PayService {
             payBill.setPayTime(DateUtils.now());
             payBillMapper.insert(payBill);
         }
-
         return pay.getBody();
     }
 
@@ -177,15 +178,15 @@ public class PayService {
         PayBill payBill = payBillMapper.selectOne(Wrappers.lambdaQuery(PayBill.class)
                 .eq(PayBill::getOutOrderNo, refundDto.getOrderNumber()));
         if (Objects.isNull(payBill)) {
-            throw new RuntimeException();
+            throw new RuntimeException(BaseCode.PAY_BILL_NOT_EXIST.getMsg());
         }
 
         if (!Objects.equals(payBill.getPayBillStatus(), PayBillStatus.PAY.getCode())) {
-            throw new RuntimeException();
+            throw new RuntimeException(BaseCode.PAY_BILL_IS_NOT_PAY_STATUS.getMsg());
         }
 
         if (refundDto.getAmount().compareTo(payBill.getPayAmount()) > 0) {
-            throw new RuntimeException();
+            throw new RuntimeException(BaseCode.REFUND_AMOUNT_GREATER_THAN_PAY_AMOUNT.getMsg());
         }
 
         PayStrategyHandler payStrategyHandler = payStrategyHandlerMap.get(refundDto.getChannel());
