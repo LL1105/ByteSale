@@ -24,6 +24,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
         </dependency>
@@ -39,8 +44,33 @@
         </dependency>
 
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-jdbc-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sale</groupId>
+            <artifactId>payment-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cc.siyecao.uid</groupId>
+            <artifactId>uid-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cc.siyecao.uid</groupId>
+            <artifactId>uid-database</artifactId>
         </dependency>
     </dependencies>
 

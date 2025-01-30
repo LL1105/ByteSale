@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import lombok.Data;
 
@@ -33,7 +34,7 @@ public class RefundBill implements Serializable {
     /**
      * 退款金额
      */
-    private Integer refundAmount;
+    private BigDecimal refundAmount;
 
     /**
      * 账单退款状态 1：未退款 2：已退款
