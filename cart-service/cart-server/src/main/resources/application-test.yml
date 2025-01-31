@@ -1,0 +1,13 @@
+spring:
+  datasource:
+      url: jdbc:mysql://localhost:3306/byte_sale_cart
+      username: root
+      password: root
+      driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    host: localhost
+    port: 6379
+    password:
+mybatis-plus:
+    mapper-locations: classpath*:/mapper/*.xml
+    typeAliasesPackage: com.sale.model
