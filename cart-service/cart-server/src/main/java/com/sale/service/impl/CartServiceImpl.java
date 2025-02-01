@@ -103,9 +103,9 @@ public class CartServiceImpl implements CartService {
                     .build();
             cartItemMapper.insert(cartItem);
         } else {
-                cartItem.setQuantity(cartItem.getQuantity() + quantity);
-                cartItem.setUpdatedAt(LocalDateTime.now());
-                cartItemMapper.updateById(cartItem);
+            cartItem.setQuantity(cartItem.getQuantity() + quantity);
+            cartItem.setUpdatedAt(LocalDateTime.now());
+            cartItemMapper.updateById(cartItem);
         }
 
         // 5. 更新 Redis 缓存
