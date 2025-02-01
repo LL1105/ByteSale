@@ -12,6 +12,7 @@ import lombok.*;
 /**
  * 购物车
  */
+
 @TableName("cart")
 @Data
 @Builder
@@ -20,7 +21,6 @@ import lombok.*;
 public class Cart implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
     /**
      * 主键id
      */
@@ -30,16 +30,24 @@ public class Cart implements Serializable {
     /**
      * 用户id
      */
+    @TableField("user_id")
     private Long userId;
 
     /**
      * 商家id
      */
-    private Long storeId;
+    @TableField("store_id")
+    private Long storeId = 0L;  // 提供默认值
 
+    /**
+     * 记录创建时间。
+     */
     @TableField("created_at")
     private LocalDateTime createdAt;
 
+    /**
+     * 记录最后更新的时间。
+     */
     @TableField("updated_at")
     private LocalDateTime updatedAt;
 }
