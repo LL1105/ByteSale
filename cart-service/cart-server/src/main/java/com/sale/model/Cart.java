@@ -5,16 +5,20 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
-import lombok.Data;
+import java.time.LocalDateTime;
+
+import lombok.*;
 
 /**
  * 购物车
  */
 @TableName("cart")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Cart implements Serializable {
 
-    @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 
     /**
@@ -33,35 +37,9 @@ public class Cart implements Serializable {
      */
     private Long storeId;
 
-    public Long getId() {
-        return id;
-    }
+    @TableField("created_at")
+    private LocalDateTime createdAt;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-    public Long getStoreId() {
-        return storeId;
-    }
-
-    public void setStoreId(Long storeId) {
-        this.storeId = storeId;
-    }
-
-    @Override
-    public String toString() {
-        return "Cart{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", storeId=" + storeId +
-                "}";
-    }
+    @TableField("updated_at")
+    private LocalDateTime updatedAt;
 }
-
