@@ -25,10 +25,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-/**
- * 购物车服务实现类
- * 提供购物车的增删改查操作，并支持缓存机制
- */
 @Slf4j
 @Service
 public class CartServiceImpl implements CartService {
@@ -47,6 +43,11 @@ public class CartServiceImpl implements CartService {
 
     private static final String CART_REDIS_KEY_PREFIX = "cart:";
 
+    /**
+     * 添加商品到购物车
+     *
+     * @param dto 购物车添加参数
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void addItem(CartAddDTO dto) {
@@ -56,47 +57,41 @@ public class CartServiceImpl implements CartService {
 
         log.info("开始处理添加购物车请求 - 用户ID: {}, 商品SKU: {}, 数量: {}", userId, skuId, quantity);
 
-        // 库存检查
+        // 1. 校验库存
+        verifyProductStock(skuId, quantity);
+
+        // 2. 获取商品价格
+        BigDecimal price = getProductPrice(skuId);
+
+        // 3. 查找或创建购物车
+        Cart cart = findOrCreateCart(userId);
+        log.info("购物车处理结果 - 购物车ID: {}", cart.getId());
+
+        // 4. 处理购物车条目
+        handleCartItem(cart, userId, skuId, quantity, price);
+
+        // 5. 获取并缓存购物车信息
+        CartVO cartVO = fetchCartVO(userId);
+        if (cartVO != null) {
+            String redisKey = CART_REDIS_KEY_PREFIX + userId;
+            redisTemplate.opsForValue().set(redisKey, cartVO, 30, TimeUnit.MINUTES);
+        }
+
+        log.info("用户 [{}] 成功添加商品 [{}] 到购物车，数量 [{}]", userId, skuId, quantity);
+    }
+
+    /**
+     * 校验商品库存
+     *
+     * @param skuId     商品SKU ID
+     * @param quantity  商品数量
+     */
+    private void verifyProductStock(Long skuId, Integer quantity) {
         Boolean stockCheck = productApi.checkStock(skuId, quantity);
         if (!stockCheck) {
             log.warn("商品 [{}] 库存不足，无法加入购物车", skuId);
             throw new RuntimeException("商品库存不足");
         }
-
-        // 获取商品价格
-        BigDecimal price = productApi.getPrice(skuId);
-        if (Objects.isNull(price)) {
-            log.error("无法获取商品 [{}] 的价格", skuId);
-            throw new RuntimeException("无法获取商品价格");
-        }
-
-        // 查找或创建购物车
-        Cart cart = findOrCreateCart(userId);
-        log.info("购物车处理结果 - 购物车ID: {}", cart.getId());
-
-        // 处理购物车条目
-        handleCartItem(cart, userId, skuId, quantity, price);
-
-        // 验证数据库操作
-        Cart verifyCart = cartMapper.selectByUserId(userId);
-        log.info("数据库验证 - 查询购物车结果: {}", verifyCart);
-    }
-
-    private Cart findOrCreateCart(Long userId) {
-        Cart cart = cartMapper.selectByUserId(userId);
-        if (cart == null) {
-            log.info("创建新购物车 - 用户ID: {}", userId);
-            cart = Cart.builder()
-                    .userId(userId)
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
-                    .build();
-
-            // 添加调试日志
-            int insertResult = cartMapper.insert(cart);
-            log.info("购物车插入结果: {}", insertResult);
-        }
-        return cart;
     }
 
     /**
@@ -104,11 +99,11 @@ public class CartServiceImpl implements CartService {
      *
      * @param skuId 商品SKU ID
      * @return 商品价格
-     * @throws RuntimeException 无法获取价格时抛出异常
      */
     private BigDecimal getProductPrice(Long skuId) {
         BigDecimal price = productApi.getPrice(skuId);
         if (Objects.isNull(price)) {
+            log.error("无法获取商品 [{}] 的价格", skuId);
             throw new RuntimeException("无法获取商品价格");
         }
         return price;
@@ -120,6 +115,27 @@ public class CartServiceImpl implements CartService {
      * @param userId 用户ID
      * @return 购物车实体
      */
+    private Cart findOrCreateCart(Long userId) {
+        Cart cart = cartMapper.selectByUserId(userId);
+        if (cart == null) {
+            log.info("创建新购物车 - 用户ID: {}", userId);
+            cart = Cart.builder()
+                    .userId(userId)
+                    .storeId(0L)  // 默认商家ID
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .build();
+
+            int insertResult = cartMapper.insert(cart);
+            log.info("购物车插入结果: {}", insertResult);
+
+            if (insertResult == 0) {
+                log.error("购物车创建失败");
+                throw new RuntimeException("无法创建购物车");
+            }
+        }
+        return cart;
+    }
 
     /**
      * 处理购物车条目
@@ -131,51 +147,45 @@ public class CartServiceImpl implements CartService {
      * @param price     商品价格
      */
     private void handleCartItem(Cart cart, Long userId, Long skuId, Integer quantity, BigDecimal price) {
-        CartItem cartItem = cartItemMapper.selectByUserIdAndSku(userId, skuId);
+        // 查询是否已存在相同商品的购物车项
+        CartItem cartItem = cartItemMapper.selectByCartIdAndSkuId(cart.getId(), skuId);
+
+        // 计算总价
+        BigDecimal totalPrice = price.multiply(BigDecimal.valueOf(quantity));
 
         if (cartItem == null) {
-            // 新增购物车项
+            // 创建新的购物车项
             cartItem = CartItem.builder()
                     .cartId(cart.getId())
                     .skuId(skuId)
+                    .spuId(getSpuIdFromSkuId(skuId))
+                    .storeId(getStoreIdFromSkuId(skuId))
                     .quantity(quantity)
                     .price(price)
+                    .totalPrice(totalPrice)
+                    .status(1)
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
                     .build();
+
             cartItemMapper.insert(cartItem);
+            log.info("新增购物车项 - SKU: {}, 数量: {}", skuId, quantity);
         } else {
-            // 更新购物车项数量
+            // 更新已存在的购物车项
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
+            cartItem.setTotalPrice(price.multiply(BigDecimal.valueOf(cartItem.getQuantity())));
             cartItem.setUpdatedAt(LocalDateTime.now());
+
             cartItemMapper.updateById(cartItem);
+            log.info("更新购物车项 - SKU: {}, 新数量: {}", skuId, cartItem.getQuantity());
         }
     }
 
     /**
-     * 更新 Redis 缓存
+     * 获取购物车详细信息
      *
      * @param userId 用户ID
-     */
-    private void updateRedisCache(Long userId) {
-        String redisKey = CART_REDIS_KEY_PREFIX + userId;
-        CartVO updatedCartVO = fetchCartVO(userId);
-
-        if (updatedCartVO != null) {
-            redisTemplate.opsForValue().set(
-                    redisKey,
-                    updatedCartVO,
-                    30,
-                    TimeUnit.MINUTES
-            );
-        }
-    }
-
-    /**
-     * 获取完整的购物车信息
-     *
-     * @param userId 用户ID
-     * @return 购物车 VO 对象
+     * @return 购物车VO对象
      */
     private CartVO fetchCartVO(Long userId) {
         Cart cart = cartMapper.selectByUserId(userId);
@@ -185,7 +195,8 @@ public class CartServiceImpl implements CartService {
 
         // 查询购物车项
         LambdaQueryWrapper<CartItem> queryWrapper = Wrappers.lambdaQuery(CartItem.class)
-                .eq(CartItem::getCartId, cart.getId());
+                .eq(CartItem::getCartId, cart.getId())
+                .eq(CartItem::getStatus, 1);  // 仅查询有效的购物车项
         List<CartItem> cartItems = cartItemMapper.selectList(queryWrapper);
 
         // 构建购物车 VO
@@ -195,9 +206,10 @@ public class CartServiceImpl implements CartService {
         List<CartItemVO> cartItemVOList = cartItems.stream().map(item -> {
             CartItemVO cartItemVO = new CartItemVO();
             cartItemVO.setSkuId(item.getSkuId());
+            cartItemVO.setSpuId(item.getSpuId());
             cartItemVO.setQuantity(item.getQuantity());
             cartItemVO.setPrice(item.getPrice());
-            cartItemVO.setSubtotal(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+            cartItemVO.setSubtotal(item.getTotalPrice());
             return cartItemVO;
         }).collect(Collectors.toList());
 
@@ -209,5 +221,29 @@ public class CartServiceImpl implements CartService {
         );
 
         return cartVO;
+    }
+
+    /**
+     * 根据SKU ID获取SPU ID
+     *
+     * @param skuId SKU ID
+     * @return SPU ID
+     */
+    private Long getSpuIdFromSkuId(Long skuId) {
+        // TODO: 从商品服务获取SPU ID
+        // 这里需要调用商品服务的接口获取实际的SPU ID
+        return 0L;
+    }
+
+    /**
+     * 根据SKU ID获取商家ID
+     *
+     * @param skuId SKU ID
+     * @return 商家ID
+     */
+    private Long getStoreIdFromSkuId(Long skuId) {
+        // TODO: 从商品服务获取商家ID
+        // 这里需要调用商品服务的接口获取实际的商家ID
+        return 0L;
     }
 }

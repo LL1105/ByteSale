@@ -1,9 +1,7 @@
 package com.sale.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -30,24 +28,25 @@ public class Cart implements Serializable {
     /**
      * 用户id
      */
-    @TableField("user_id")
+    @TableField(value = "user_id", fill = FieldFill.INSERT)
     private Long userId;
 
     /**
      * 商家id
      */
-    @TableField("store_id")
+    @TableField(value = "store_id", fill = FieldFill.INSERT)
     private Long storeId = 0L;  // 提供默认值
 
     /**
      * 记录创建时间。
      */
-    @TableField("created_at")
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
     /**
      * 记录最后更新的时间。
      */
-    @TableField("updated_at")
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
+
 }
