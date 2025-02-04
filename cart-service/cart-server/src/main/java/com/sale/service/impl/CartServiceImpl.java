@@ -126,6 +126,7 @@ public class CartServiceImpl implements CartService {
                     .updatedAt(LocalDateTime.now())
                     .build();
 
+            log.info("待插入的购物车: {}", cart);
             int insertResult = cartMapper.insert(cart);
             log.info("购物车插入结果: {}", insertResult);
 
