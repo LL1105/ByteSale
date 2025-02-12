@@ -1,0 +1,15 @@
+server:
+  port: 9006
+
+spring:
+  profiles:
+    active: test
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/byte_sale?allowPublicKeyRetrieval=true&characterEncoding=utf-8
+    username: root
+    password: 123456
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml
+  typeAliasesPackage: com.sale.model

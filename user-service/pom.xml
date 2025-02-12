@@ -10,6 +10,12 @@
     </parent>
 
     <artifactId>user-service</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>user-server</module>
+        <module>user-api</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -17,4 +23,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.sale</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+    </dependencies>
 </project>
