@@ -19,6 +19,8 @@ public class TokenConstant {
     /**
      *  用户ID
      */
+    public static final String JWT_USER_KEY = "user_key";
+
     public static final String JWT_USER_ID = "user_id";
 
     /**

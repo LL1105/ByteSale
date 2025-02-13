@@ -11,4 +11,6 @@ public class UserConstant {
     public static final Integer PASSWORD_MIN_LENGTH = 8;
 
     public static final Integer PASSWORD_MAX_LENGTH = 20;
+
+    public static final Integer MAX_RETRY_COUNT = 3;
 }

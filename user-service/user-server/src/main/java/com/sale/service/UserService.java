@@ -3,11 +3,14 @@ package com.sale.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.sale.constant.CacheConstant;
 import com.sale.constant.UserConstant;
 import com.sale.dto.UserInfoDto;
 import com.sale.enums.BaseCode;
 import com.sale.mapper.UserInfoMapper;
 import com.sale.model.UserInfo;
+import com.sale.utils.DateUtils;
+import com.sale.utils.RedisUtils;
 import com.sale.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.User;
@@ -15,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -25,6 +30,9 @@ public class UserService {
 
     @Autowired
     private TokenService tokenService;
+
+    @Resource
+    private RedisUtils redisUtils;
 
     // TODO: 事务
     public String register(UserInfoDto userInfoDto) {
@@ -104,10 +112,30 @@ public class UserService {
         return userInfo;
     }
 
-    public static void validatePassword(String password, UserInfo userInfo) {
-        // TODO: 重试次数
-        if(!SecurityUtils.matchesPassword(password, userInfo.getPassword())) {
-            throw new RuntimeException(BaseCode.USER_INFO_PASSWORD_NOT_MATCH.getMsg());
+    public void validatePassword(String password, UserInfo userInfo) {
+        String username = userInfo.getUsername();
+        Integer retryCount = redisUtils.getCacheObject(genUsernameKey(username));
+
+        if(Objects.isNull(retryCount)) {
+            retryCount = 0;
         }
+
+        if(retryCount >= UserConstant.MAX_RETRY_COUNT) {
+            String errMsg = String.format("密码输入错误 %s 次，帐户锁定 %d 分钟", retryCount, CacheConstant.LOGIN_RETRY_PERIOD);
+            log.error(errMsg);
+            throw new RuntimeException(errMsg);
+        }
+        if(!SecurityUtils.matchesPassword(password, userInfo.getPassword())) {
+            retryCount += 1;
+            redisUtils.setCacheObject(genUsernameKey(username), retryCount, CacheConstant.LOGIN_RETRY_PERIOD, TimeUnit.MINUTES);
+            log.error("密码输入错误");
+            throw new RuntimeException(BaseCode.USER_INFO_PASSWORD_NOT_MATCH.getMsg());
+        } else {
+            redisUtils.deleteObject(genUsernameKey(username));
+        }
+    }
+
+    private String genUsernameKey(String username) {
+        return CacheConstant.LOGIN_RETRY_KEY + username;
     }
 }

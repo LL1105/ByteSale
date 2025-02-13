@@ -1,27 +1,41 @@
 package com.sale.service;
 
+import com.sale.constant.CacheConstant;
 import com.sale.constant.TokenConstant;
 import com.sale.enums.BaseCode;
 import com.sale.model.UserInfo;
 import com.sale.utils.JwtUtils;
+import com.sale.utils.RedisUtils;
+import com.sale.utils.UUID;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
 public class TokenService {
+    @Resource
+    private RedisUtils redisUtils;
+
     public String createToken(UserInfo userInfo) {
         Map<String, Object> playload = new HashMap<String, Object>();
+        String userKey = UUID.fastUUID().toString();
+        playload.put(TokenConstant.JWT_USER_KEY, userKey);
         playload.put(TokenConstant.JWT_USER_ID, userInfo.getId());
         playload.put(TokenConstant.JWT_USERNAME, userInfo.getUsername());
         playload.put(TokenConstant.JWT_EMAIL, userInfo.getEmail());
 
-        return JwtUtils.createToken(playload);
+        String token = JwtUtils.createToken(playload);
+
+        redisUtils.setCacheObject(genTokenKey(userKey), userKey, TokenConstant.EXPIRATION*2, TimeUnit.SECONDS);
+
+        return token;
     }
 
     public String refreshToken(String token) {
@@ -49,4 +63,15 @@ public class TokenService {
             throw new RuntimeException(BaseCode.USER_INFO_INVALID_TOKEN.getMsg());
         }
     }
+
+    public void delToken(String token) {
+        String userKey = JwtUtils.getUserKey(token);
+        redisUtils.deleteObject(genTokenKey(userKey));
+    }
+
+    private String genTokenKey(String userKey) {
+        return CacheConstant.TOKEN_PREFIX + userKey;
+    }
+
+
 }

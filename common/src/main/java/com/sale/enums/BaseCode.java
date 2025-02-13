@@ -32,8 +32,9 @@ public enum BaseCode {
 
     USER_INFO_PASSWORD_NOT_MATCH(20006, "密码不正确"),
 
-    USER_INFO_INVALID_TOKEN(20007, "无效的token")
+    USER_INFO_INVALID_TOKEN(20007, "无效的token"),
 
+    USER_INFO_LOGIN_OVER_ATTEMPTS(20008, "登录超过重试次数，等待5分钟")
 
     ;
     

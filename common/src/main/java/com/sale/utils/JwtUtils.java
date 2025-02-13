@@ -44,4 +44,8 @@ public class JwtUtils {
     public static String getUsername(String token) {
         return parseToken(token).get(TokenConstant.JWT_USERNAME, String.class);
     }
+
+    public static String getUserKey(String token) {
+        return parseToken(token).get(TokenConstant.JWT_USER_KEY, String.class);
+    }
 }

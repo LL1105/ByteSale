@@ -17,4 +17,9 @@ class RedisUtilsTest {
     void setCacheObject() {
         redisUtils.setCacheObject("hello1", "world2");
     }
+
+    @Test
+    void deleteCacheObject() {
+        redisUtils.deleteObject("don't exist");
+    }
 }

@@ -50,9 +50,7 @@ public class UserController {
     public ApiResponse<String> logout(HttpServletRequest request) {
         String token = request.getHeader(TokenConstant.AUTHENTICATION);
         if (StringUtils.isNotEmpty(token)) {
-            String username = JwtUtils.getUsername(token);
-            // TODO: 删除用户缓存记录
-
+            tokenService.delToken(token);
         }
         return ApiResponse.ok();
     }
