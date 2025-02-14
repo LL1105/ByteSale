@@ -1,7 +1,6 @@
 package com.sale.service;
 
 import com.sale.model.UserInfo;
-import net.sf.jsqlparser.statement.create.table.ColDataType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -24,3 +24,11 @@ spring:
 mybatis-plus:
   mapper-locations: classpath*:mapper/*.xml
   typeAliasesPackage: com.sale.model
+
+oss:
+  qiniu: #  七牛秘钥
+    accessKey: XXXXXXXXXXX
+    secretKey: XXXXXXXXXXXX
+    bucket: XXXX
+    directory: user-server/
+    domain:

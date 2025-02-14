@@ -34,8 +34,15 @@ public enum BaseCode {
 
     USER_INFO_INVALID_TOKEN(20007, "无效的token"),
 
-    USER_INFO_LOGIN_OVER_ATTEMPTS(20008, "登录超过重试次数，等待5分钟")
+    USER_INFO_LOGIN_OVER_ATTEMPTS(20008, "登录超过重试次数，等待5分钟"),
 
+    USER_INFO_AVATAR_CHANGE_FAILED(20009, "头像更换失败"),
+
+    FILE_IS_EMPTY(30001, "文件为空"),
+
+    FILE_SIZE_EXCEED(30002, "超出文件上传大小"),
+
+    FILE_TYPE_ILLEGAL(30003, "文件类型不合法"),
     ;
     
     private final Integer code;

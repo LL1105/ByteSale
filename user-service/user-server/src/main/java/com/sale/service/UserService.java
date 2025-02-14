@@ -9,16 +9,18 @@ import com.sale.dto.UserInfoDto;
 import com.sale.enums.BaseCode;
 import com.sale.mapper.UserInfoMapper;
 import com.sale.model.UserInfo;
-import com.sale.utils.DateUtils;
 import com.sale.utils.RedisUtils;
 import com.sale.utils.SecurityUtils;
+import com.sale.utils.UserContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +33,9 @@ public class UserService {
     @Autowired
     private TokenService tokenService;
 
+    @Autowired
+    private IFileService fileService;
+
     @Resource
     private RedisUtils redisUtils;
 
@@ -39,7 +44,7 @@ public class UserService {
         // 1. 基本校验
         if (userInfoDto == null || !StringUtils.hasText(userInfoDto.getUsername()) ||
                 !StringUtils.hasText(userInfoDto.getPassword())) {
-            log.error("用户名和密码不能为空");
+            log.error("用户名和码不能为空");
             throw new RuntimeException(BaseCode.USER_INFO_USERNAME_OR_PASSWORD_IS_NULL.getMsg());
         }
         // 1.1 用户名和密码的校验
@@ -110,6 +115,33 @@ public class UserService {
         validatePassword(password, userInfo);
 
         return userInfo;
+    }
+
+    public String changeAvatar(MultipartFile file) throws IOException {
+        // 1、 上传文件
+        if(file.isEmpty()) {
+            log.error("上传头像文件为空");
+            throw new RuntimeException(BaseCode.FILE_IS_EMPTY.getMsg());
+        }
+
+        if(file.getSize()> UserConstant.AVATAR_MAX_SIZE) {
+            log.error("上传头像文件超出大小");
+            throw new RuntimeException(BaseCode.FILE_SIZE_EXCEED.getMsg());
+        }
+
+        if(!UserConstant.AVATAR_TYPE.contains(file.getContentType())) {
+            log.error("文件类型不符合规范");
+            throw new RuntimeException(BaseCode.FILE_TYPE_ILLEGAL.getMsg());
+        }
+
+        String avatarUrl = fileService.upload(file);
+        String username = UserContext.getUsername();
+        if(userInfoMapper.updateAvatarByUsername(username, avatarUrl) == 0) {
+            log.error("修改头像失败");
+            throw new RuntimeException(BaseCode.USER_INFO_AVATAR_CHANGE_FAILED.getMsg());
+        }
+
+        return avatarUrl;
     }
 
     public void validatePassword(String password, UserInfo userInfo) {

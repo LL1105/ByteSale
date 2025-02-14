@@ -1,8 +1,21 @@
 package com.sale.utils;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class SecurityUtils {
+    public static String getUsername() {
+        // 1. 获取 Authentication 对象
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // 2. 从 Authentication 对象中获取 UserDetails 对象
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        String username = userDetails.getUsername();
+        return username;
+    }
 
     /**
      * 生成BCryptPasswordEncoder密码
