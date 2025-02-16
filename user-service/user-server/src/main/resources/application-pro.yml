@@ -1,0 +1,34 @@
+server:
+  port: 9006
+
+spring:
+  profiles:
+    active: test
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/byte_sale?allowPublicKeyRetrieval=true&characterEncoding=utf-8
+    username: root
+    password: 123456
+  redis:  # redis 配置
+    host: localhost
+    port: 6379
+    password: 123456
+    timeout: 10s
+    lettuce:
+      pool:
+        min-idle: 0
+        max-idle: 8
+        max-active: 8
+        max-wait: -1ms
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml
+  typeAliasesPackage: com.sale.model
+
+oss:
+  qiniu: #  七牛秘钥
+    accessKey: XXXXXXXXXXX
+    secretKey: XXXXXXXXXXXX
+    bucket: XXXX
+    directory: user-server/
+    domain:

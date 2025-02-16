@@ -19,6 +19,30 @@ public enum BaseCode {
 
     REFUND_AMOUNT_GREATER_THAN_PAY_AMOUNT(10024,"退款金额大于支付金额"),
 
+    // 用户相关
+    USER_INFO_USERNAME_OR_PASSWORD_IS_NULL(20001, "用户名或密码为空"),
+
+    USER_INFO_INVALID_USERNAME(20002, "无效的用户名"),
+
+    USER_INFO_INVALID_PASSWORD(20003, "无效的密码"),
+
+    USER_INFO_USERNAME_IS_EXIST(20004, "用户名已经存在"),
+
+    USER_INFO_USERNAME_IS_NOT_EXIST(20005, "用户名不存在"),
+
+    USER_INFO_PASSWORD_NOT_MATCH(20006, "密码不正确"),
+
+    USER_INFO_INVALID_TOKEN(20007, "无效的token"),
+
+    USER_INFO_LOGIN_OVER_ATTEMPTS(20008, "登录超过重试次数，等待5分钟"),
+
+    USER_INFO_AVATAR_CHANGE_FAILED(20009, "头像更换失败"),
+
+    FILE_IS_EMPTY(30001, "文件为空"),
+
+    FILE_SIZE_EXCEED(30002, "超出文件上传大小"),
+
+    FILE_TYPE_ILLEGAL(30003, "文件类型不合法"),
     ;
     
     private final Integer code;
