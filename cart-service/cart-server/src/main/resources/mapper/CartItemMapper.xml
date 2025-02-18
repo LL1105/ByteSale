@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sale.mapper.CartItemMapper">
+
+    <select id="selectByUserIdAndSku" resultType="com.sale.model.CartItem">
+        SELECT * FROM cart_item WHERE user_id = #{userId} AND sku_id = #{skuId} LIMIT 1
+    </select>
+
+</mapper>

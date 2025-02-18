@@ -1,0 +1,25 @@
+dubbo:
+  application:
+    name: cart-service
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/byte_sale_cart
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/*.xml
+  typeAliasesPackage: com.sale.model
+  global-config:
+    db-config:
+      id-type: auto
+      field-strategy: not_null
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
