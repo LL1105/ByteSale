@@ -1,0 +1,33 @@
+dubbo:
+  application:
+    name: cart-service
+  registry:
+    address: nacos://nacos-server:8848
+  consumer:
+    check: true
+
+spring:
+  datasource:
+    url: jdbc:mysql://prod-db-server:3306/byte_sale_cart
+    username: prod_user
+    password: prod_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    host: prod-redis-server
+    port: 6379
+    database: 0
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos-server:8848
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/*.xml
+  typeAliasesPackage: com.sale.model
+  global-config:
+    db-config:
+      id-type: auto
+      field-strategy: not_null
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
