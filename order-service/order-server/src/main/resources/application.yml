@@ -1,0 +1,11 @@
+server:
+    port: 8888
+
+spring:
+    #  profiles:
+    #    active: test
+    datasource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/byte_sale?allowPublicKeyRetrieval=true&characterEncoding=utf-8
+        username: root
+        password: 1111
