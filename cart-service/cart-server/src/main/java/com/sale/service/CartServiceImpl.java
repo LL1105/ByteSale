@@ -1,16 +1,18 @@
-package com.sale.service.impl;
+package com.sale.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.sale.api.CartApi;
 import com.sale.api.ProductApi;
 import com.sale.dto.CartAddDTO;
 import com.sale.mapper.CartItemMapper;
 import com.sale.mapper.CartMapper;
 import com.sale.model.Cart;
 import com.sale.model.CartItem;
-import com.sale.service.CartService;
 import com.sale.vo.CartItemVO;
 import com.sale.vo.CartVO;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class CartServiceImpl implements CartService {
+public class CartServiceImpl implements CartApi {
 
     @Autowired
     private CartMapper cartMapper;
@@ -50,7 +52,7 @@ public class CartServiceImpl implements CartService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void addItem(CartAddDTO dto) {
+    public Boolean addItem(CartAddDTO dto) {
         Long userId = dto.getUserId();
         Long skuId = dto.getSkuId();
         Integer quantity = dto.getQuantity();
@@ -70,14 +72,156 @@ public class CartServiceImpl implements CartService {
         // 4. 处理购物车条目
         handleCartItem(cart, userId, skuId, quantity, price);
 
-        // 5. 获取并缓存购物车信息
+        // 5. 更新购物车缓存
+        updateCartCache(userId);
+
+        log.info("用户 [{}] 成功添加商品 [{}] 到购物车，数量 [{}]", userId, skuId, quantity);
+        return true;
+    }
+
+    /**
+     * 获取购物车列表
+     *
+     * @param userId 用户ID
+     * @return 购物车VO对象
+     */
+    @Override
+    public CartVO getCartList(Long userId) {
+        String redisKey = CART_REDIS_KEY_PREFIX + userId;
+        CartVO cartVO = (CartVO) redisTemplate.opsForValue().get(redisKey);
+
+        if(cartVO == null) {
+            //缓存中不存在，从数据库中查询
+            cartVO = fetchCartVO(userId);
+            if(cartVO != null) {
+                //更新缓存
+                redisTemplate.opsForValue().set(redisKey, cartVO, 30, TimeUnit.MINUTES);
+            }
+        }
+
+        return cartVO;
+    }
+
+    /**
+     * 删除购物车项
+     *
+     * @param userId 用户ID
+     * @param skuId 商品SKU ID
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean deleteCartItem(Long userId, Long skuId) {
+        //查找购物车
+        Cart cart = cartMapper.selectByUserId(userId);
+        if (cart == null) {
+            throw new RuntimeException("购物车不存在");
+        }
+
+        //删除购物车项
+        cartItemMapper.delete(new QueryWrapper<CartItem>()
+                .eq("cart_id", cart.getId())
+                .eq("sku_id", skuId));
+
+        //更新购物车缓存
+        updateCartCache(userId);
+
+        log.info("用户 [{}] 成功删除商品 [{}] 从购物车", userId, skuId);
+        return true;
+    }
+
+    /**
+     * 更新购物车项状态
+     *
+     * @param userId  用户ID
+     * @param skuId   商品SKU ID
+     * @param status  状态
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean updateCartItemStatus(Long userId, Long skuId, Integer status) {
+        //查找购物车
+        Cart cart = cartMapper.selectByUserId(userId);
+        if (cart == null) {
+            throw new RuntimeException("购物车不存在");
+        }
+
+        //更新购物车项状态
+        CartItem cartItem = cartItemMapper.selectByCartIdAndSkuId(cart.getId(), skuId);
+        if (cartItem == null) {
+            throw new RuntimeException("购物车项不存在");
+        }
+        cartItem.setStatus(status);
+        cartItemMapper.updateById(cartItem);
+
+        //更新购物车缓存
+        updateCartCache(userId);
+
+        log.info("用户 [{}] 成功更新商品 [{}] 的状态为 [{}]", userId, skuId, status);
+
+        return true;
+    }
+
+    /**
+     * 选中购物车所有商品
+     *
+     * @param userId 用户ID
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean selectAllCartItems(Long userId) {
+        //查找购物车
+        Cart cart = cartMapper.selectByUserId(userId);
+        if (cart == null) {
+            throw new RuntimeException("购物车不存在");
+        }
+
+        //更新所有购物车项状态为选中
+        List<CartItem> cartItems = cartItemMapper.selectList(new QueryWrapper<CartItem>()
+                .eq("cart_id", cart.getId()));
+        for (CartItem cartItem : cartItems) {
+            cartItem.setStatus(1);
+            cartItemMapper.updateById(cartItem);
+        }
+
+        //更新购物车缓存
+        updateCartCache(userId);
+
+        log.info("用户 [{}] 成功选中购物车所有商品", userId);
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean clearCart(Long userId) {
+        //查找购物车
+        Cart cart = cartMapper.selectByUserId(userId);
+        if (cart == null) {
+            throw new RuntimeException("购物车不存在");
+        }
+
+        //删除购物车所有商品
+        cartItemMapper.delete(new QueryWrapper<CartItem>()
+                .eq("cart_id", cart.getId()));
+
+        //更新购物车缓存
+        updateCartCache(userId);
+
+        log.info("用户 [{}] 成功清空购物车", userId);
+        return true;
+    }
+
+    /**
+     * 获取购物车信息
+     *
+     * @param userId 用户ID
+     */
+    private void updateCartCache(Long userId) {
+        //获取并缓存购物车信息
         CartVO cartVO = fetchCartVO(userId);
         if (cartVO != null) {
             String redisKey = CART_REDIS_KEY_PREFIX + userId;
             redisTemplate.opsForValue().set(redisKey, cartVO, 30, TimeUnit.MINUTES);
         }
-
-        log.info("用户 [{}] 成功添加商品 [{}] 到购物车，数量 [{}]", userId, skuId, quantity);
     }
 
     /**

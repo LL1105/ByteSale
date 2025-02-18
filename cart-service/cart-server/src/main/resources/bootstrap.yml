@@ -1,10 +1,13 @@
-spring:
-  application:
-    name: cart-service
-  cloud:
-    nacos:
-      discovery:
-        server-addr: localhost:8848
-      config:
-        server-addr: localhost:8848
-        file-extension: yaml
+#spring:
+#  application:
+#    name: cart-service
+#  cloud:
+#    nacos:
+#      discovery:
+#        server-addr: localhost:8848
+#      config:
+#        namespace: test
+#        group: DEFAULT_GROUP
+#        server-addr: localhost:8848
+#        file-extension: yml
+#        prefix: cart-service

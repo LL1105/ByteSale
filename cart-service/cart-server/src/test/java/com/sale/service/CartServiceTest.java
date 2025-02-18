@@ -7,14 +7,12 @@ import com.sale.mapper.CartItemMapper;
 import com.sale.mapper.CartMapper;
 import com.sale.model.Cart;
 import com.sale.model.CartItem;
-import com.sale.service.impl.CartServiceImpl;
 import com.sale.vo.CartVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -164,4 +162,170 @@ public class CartServiceTest {
                 eq(TimeUnit.MINUTES)
         );
     }
+
+    @Test
+    void testGetCartList() {
+        // 模拟数据
+        Long userId = 1L;
+        Cart cart = new Cart();
+        cart.setId(1L);
+        cart.setUserId(userId);
+        when(cartMapper.selectByUserId(userId)).thenReturn(cart);
+
+        // 执行方法
+        CartVO cartVO = cartService.getCartList(userId);
+
+        //打印结果
+        System.out.println("获取到的购物车信息：" + cartVO);
+
+        // 验证结果
+        assertNotNull(cartVO);
+    }
+
+    @Test
+    void testDeleteCartItem() {
+        // 模拟数据
+        Long userId = 1L;
+        Long skuId = 100L;
+        Cart cart = new Cart();
+        cart.setId(1L);
+        cart.setUserId(userId);
+        when(cartMapper.selectByUserId(userId)).thenReturn(cart);
+
+        // 执行方法
+        assertDoesNotThrow(() -> cartService.deleteCartItem(userId, skuId));
+
+        // 验证方法调用
+        verify(cartItemMapper).delete(any(QueryWrapper.class));
+    }
+
+    @Test
+    void testUpdateCartItemStatus() {
+        // 模拟数据
+        Long userId = 1L;
+        Long skuId = 100L;
+        Integer status = 1;
+        Cart cart = new Cart();
+        cart.setId(1L);
+        cart.setUserId(userId);
+        when(cartMapper.selectByUserId(userId)).thenReturn(cart);
+        CartItem cartItem = new CartItem();
+        cartItem.setId(1L);
+        cartItem.setCartId(cart.getId());
+        cartItem.setSkuId(skuId);
+        when(cartItemMapper.selectByCartIdAndSkuId(cart.getId(), skuId)).thenReturn(cartItem);
+
+        // 执行方法
+        assertDoesNotThrow(() -> cartService.updateCartItemStatus(userId, skuId, status));
+
+        // 验证方法调用
+        verify(cartItemMapper).updateById(any(CartItem.class));
+    }
+
+    @Test
+    void testSelectAllCartItems() {
+        // 模拟数据
+        Long userId = 1L;
+        Cart cart = new Cart();
+        cart.setId(1L);
+        cart.setUserId(userId);
+        when(cartMapper.selectByUserId(userId)).thenReturn(cart);
+        List<CartItem> cartItems = new ArrayList<>();
+        CartItem cartItem = new CartItem();
+        cartItem.setId(1L);
+        cartItem.setCartId(cart.getId());
+        cartItems.add(cartItem);
+        when(cartItemMapper.selectList(any(QueryWrapper.class))).thenReturn(cartItems);
+
+        // 执行方法
+        assertDoesNotThrow(() -> cartService.selectAllCartItems(userId));
+
+        // 验证方法调用
+        verify(cartItemMapper, times(cartItems.size())).updateById(any(CartItem.class));
+    }
+
+    @Test
+    void testClearCart() {
+        // 模拟数据
+        Long userId = 1L;
+        Cart cart = new Cart();
+        cart.setId(1L);
+        cart.setUserId(userId);
+        when(cartMapper.selectByUserId(userId)).thenReturn(cart);
+
+        // 执行方法
+        assertDoesNotThrow(() -> cartService.clearCart(userId));
+
+        // 验证方法调用
+        verify(cartItemMapper).delete(any(QueryWrapper.class));
+    }
 }
+//package com.sale.service;
+//
+//import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+//import com.sale.dto.CartAddDTO;
+//import com.sale.mapper.CartItemMapper;
+//import com.sale.mapper.CartMapper;
+//import com.sale.model.Cart;
+//import com.sale.model.CartItem;
+//import com.sale.service.CartServiceImpl;
+//import com.sale.vo.CartVO;
+//import org.junit.jupiter.api.BeforeEach;
+//import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.extension.ExtendWith;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.boot.test.context.SpringBootTest;
+//import org.springframework.test.context.TestPropertySource;
+//import org.springframework.test.context.junit.jupiter.SpringExtension;
+//
+//import java.math.BigDecimal;
+//import java.time.LocalDateTime;
+//import java.util.List;
+//
+//import static org.junit.jupiter.api.Assertions.*;
+//
+//@ExtendWith(SpringExtension.class)
+//@SpringBootTest
+//@TestPropertySource(locations = "classpath:bootstrap.yml")
+//public class CartServiceTest {
+//
+//    @Autowired
+//    private CartMapper cartMapper;
+//
+//    @Autowired
+//    private CartItemMapper cartItemMapper;
+//
+//    @Autowired
+//    private CartServiceImpl cartService;
+//
+//    private CartAddDTO testCartAddDTO;
+//
+//    @BeforeEach
+//    void setUp() {
+//        // 初始化测试数据
+//        testCartAddDTO = new CartAddDTO();
+//        testCartAddDTO.setUserId(1L);
+//        testCartAddDTO.setSkuId(100L);
+//        testCartAddDTO.setQuantity(2);
+//    }
+//
+//    @Test
+//    void testAddItem_NewCartItem_Success() {
+//        // 执行addItem方法
+//        cartService.addItem(testCartAddDTO);
+//
+//        // 验证购物车是否创建
+//        Cart cart = cartMapper.selectByUserId(testCartAddDTO.getUserId());
+//        assertNotNull(cart, "购物车应该被创建");
+//
+//        // 验证购物车项是否添加
+//        List<CartItem> items = cartItemMapper.selectList(
+//                new QueryWrapper<CartItem>().eq("cart_id", cart.getId())
+//        );
+//        assertFalse(items.isEmpty(), "购物车项应该被添加");
+//
+//        // 打印结果
+//        System.out.println("Created Cart: " + cart);
+//        System.out.println("Cart Items: " + items);
+//    }
+//}

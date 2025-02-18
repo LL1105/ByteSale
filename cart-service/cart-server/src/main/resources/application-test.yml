@@ -1,20 +1,10 @@
-product:
-  service:
-    url: http://localhost:8081
-
 dubbo:
   application:
-    name: cart-service-test
-  registry:
-    address: nacos://localhost:8848
-  consumer:
-    check: false
+    name: cart-service
 
 spring:
-  profile:
-    active: test
   datasource:
-    url: jdbc:mysql://localhost:3306/byte_sale_cart?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://localhost:3306/byte_sale_cart
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -22,12 +12,6 @@ spring:
     host: localhost
     port: 6379
     database: 0
-  cloud:
-    nacos:
-      discovery:
-        server-addr: localhost:8848
-      config:
-        server-addr: localhost:8848
 mybatis-plus:
   mapper-locations: classpath*:/mapper/*.xml
   typeAliasesPackage: com.sale.model
@@ -35,3 +19,7 @@ mybatis-plus:
     db-config:
       id-type: auto
       field-strategy: not_null
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
