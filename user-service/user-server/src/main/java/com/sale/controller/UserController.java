@@ -23,39 +23,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private TokenService tokenService;
-
-
     @GetMapping("/hello")
     public ApiResponse<String> hello() {
-        return ApiResponse.ok();
-    }
-
-    @PostMapping("/register")
-    public ApiResponse<String> register(@RequestBody UserInfoDto userInfoDto) {
-        return ApiResponse.ok(userService.register(userInfoDto));
-    }
-
-    @PostMapping("/login")
-    public ApiResponse<String> login(@RequestBody UserInfoDto userInfoDto) {
-        UserInfo userInfo = userService.login(userInfoDto.getUsername(), userInfoDto.getPassword());
-        String token = tokenService.createToken(userInfo);
-        return ApiResponse.ok(token);
-    }
-
-    @PostMapping("/refresh")
-    public ApiResponse<String> refresh(HttpServletRequest request) {
-        String token = request.getHeader(TokenConstant.AUTHENTICATION);
-        return ApiResponse.ok(tokenService.refreshToken(token));
-    }
-
-    @PostMapping("/logout")
-    public ApiResponse<String> logout(HttpServletRequest request) {
-        String token = request.getHeader(TokenConstant.AUTHENTICATION);
-        if (StringUtils.isNotEmpty(token)) {
-            tokenService.delToken(token);
-        }
         return ApiResponse.ok();
     }
 

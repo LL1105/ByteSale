@@ -12,4 +12,6 @@ public class Constant {
     public static final String HEADER_USER_ID = "User-Id";
 
     public static final String HEADER_USERNAME = "Username";
+
+    public static final String HEADER_USERKEY = "User-Key";
 }
