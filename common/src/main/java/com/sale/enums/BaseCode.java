@@ -32,11 +32,13 @@ public enum BaseCode {
 
     USER_INFO_PASSWORD_NOT_MATCH(20006, "密码不正确"),
 
-    USER_INFO_INVALID_TOKEN(20007, "无效的token"),
+    USER_INFO_INVALID_TOKEN(20007, "token已过期或无效"),
 
     USER_INFO_LOGIN_OVER_ATTEMPTS(20008, "登录超过重试次数，等待5分钟"),
 
     USER_INFO_AVATAR_CHANGE_FAILED(20009, "头像更换失败"),
+
+    USER_INFO_LOGIN_EXPIRED(20010, "登录状态已过期"),
 
     FILE_IS_EMPTY(30001, "文件为空"),
 
