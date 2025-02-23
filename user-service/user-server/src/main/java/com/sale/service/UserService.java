@@ -1,28 +1,16 @@
 package com.sale.service;
 
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.sale.constant.CacheConstant;
 import com.sale.constant.UserConstant;
-import com.sale.dto.UserInfoDto;
 import com.sale.enums.BaseCode;
 import com.sale.mapper.UserInfoMapper;
-import com.sale.model.UserInfo;
-import com.sale.utils.RedisUtils;
-import com.sale.utils.SecurityUtils;
-import com.sale.utils.UserContext;
+import com.sale.utils.SecurityContextUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -51,7 +39,7 @@ public class UserService {
         }
 
         String avatarUrl = fileService.upload(file);
-        String username = UserContext.getUsername();
+        String username = SecurityContextUtil.getCurrentUsername();
         if(userInfoMapper.updateAvatarByUsername(username, avatarUrl) == 0) {
             log.error("修改头像失败");
             throw new RuntimeException(BaseCode.USER_INFO_AVATAR_CHANGE_FAILED.getMsg());

@@ -5,9 +5,9 @@ import com.sale.constant.Constant;
 import com.sale.enums.BaseCode;
 import com.sale.model.LoginUser;
 import com.sale.utils.RedisUtils;
+import com.sale.utils.SecurityContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -43,8 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 3、将获取到的用户信息存入SecurityContextHolder
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
+        SecurityContextUtil.setAuthentication(authenticationToken);
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 

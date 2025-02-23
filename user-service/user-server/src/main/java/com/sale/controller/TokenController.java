@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-
 @RestController
 @RequestMapping("/auth")
 public class TokenController {
@@ -28,8 +26,8 @@ public class TokenController {
     }
 
     @PostMapping("/refresh")
-    public ApiResponse<String> refresh(HttpServletRequest request) {
-        return ApiResponse.ok();
+    public ApiResponse<String> refresh() {
+        return ApiResponse.ok(loginService.refresh());
     }
 
     @PostMapping("/logout")

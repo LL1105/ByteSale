@@ -3,7 +3,6 @@ package com.sale.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.qiniu.util.Auth;
 import com.sale.constant.CacheConstant;
 import com.sale.constant.TokenConstant;
 import com.sale.constant.UserConstant;
@@ -12,9 +11,10 @@ import com.sale.enums.BaseCode;
 import com.sale.mapper.UserInfoMapper;
 import com.sale.model.LoginUser;
 import com.sale.model.UserInfo;
-import com.sale.utils.*;
+import com.sale.utils.RedisUtils;
+import com.sale.utils.SecurityContextUtil;
+import com.sale.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,12 +22,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -119,7 +115,7 @@ public class LoginService {
 
         // 4、 生成Token
         String token = tokenService.createToken(loginUser.getUserInfo());
-        redisUtils.setCacheObject(genAuthKey(loginUser.getUserInfo().getId()), loginUser, TokenConstant.EXPIRATION, TimeUnit.MINUTES);
+        redisUtils.setCacheObject(genAuthKey(loginUser.getUserInfo().getId()), loginUser, TokenConstant.EXPIRATION, TimeUnit.SECONDS);
 
         return token;
     }
@@ -131,6 +127,16 @@ public class LoginService {
         Long userId = loginUser.getUserInfo().getId();
 
         redisUtils.deleteObject(genAuthKey(userId));
+    }
+
+    public String refresh() {
+        LoginUser loginUser = (LoginUser) SecurityContextUtil.getCurrentUser();
+        if (Objects.isNull(loginUser)) {
+            throw new RuntimeException(BaseCode.USER_INFO_INVALID_LOGIN_STATUS.getMsg());
+        }
+        String token = tokenService.createToken(loginUser.getUserInfo());
+        redisUtils.setCacheObject(genAuthKey(loginUser.getUserInfo().getId()), loginUser, TokenConstant.EXPIRATION, TimeUnit.SECONDS);
+        return token;
     }
 
     private String genAuthKey(Long userId) {

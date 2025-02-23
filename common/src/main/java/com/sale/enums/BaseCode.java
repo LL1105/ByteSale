@@ -40,6 +40,8 @@ public enum BaseCode {
 
     USER_INFO_NOT_LOGIN(20010, "用户未登录"),
 
+    USER_INFO_INVALID_LOGIN_STATUS(20011, "无效的登录状态"),
+
     FILE_IS_EMPTY(30001, "文件为空"),
 
     FILE_SIZE_EXCEED(30002, "超出文件上传大小"),
