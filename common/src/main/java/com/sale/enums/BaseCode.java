@@ -38,6 +38,10 @@ public enum BaseCode {
 
     USER_INFO_AVATAR_CHANGE_FAILED(20009, "头像更换失败"),
 
+    USER_INFO_NOT_LOGIN(20010, "用户未登录"),
+
+    USER_INFO_INVALID_LOGIN_STATUS(20011, "无效的登录状态"),
+
     USER_INFO_LOGIN_EXPIRED(20010, "登录状态已过期"),
 
     FILE_IS_EMPTY(30001, "文件为空"),
