@@ -6,4 +6,6 @@ public class CacheConstant {
     public static final Long LOGIN_RETRY_PERIOD = 5L;
 
     public static final String TOKEN_PREFIX = "jwt:token:";
+
+    public static final String AUTH_PREFIX = "auth:";
 }

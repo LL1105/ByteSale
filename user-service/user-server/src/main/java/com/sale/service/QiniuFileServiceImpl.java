@@ -42,7 +42,7 @@ public class QiniuFileServiceImpl implements IFileService{
         Response response = uploadManager.put(file.getInputStream(), fileKey, upToken, null, null);
 
         // 返回文件url
-        return qiniuConfig.getDomain() + fileKey;
+        return String.format("%s/%s", qiniuConfig.getDomain(), fileKey);
     }
 
     @Override

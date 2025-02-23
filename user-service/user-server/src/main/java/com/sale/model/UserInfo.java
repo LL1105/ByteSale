@@ -5,6 +5,8 @@ package com.sale.model;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -26,6 +28,7 @@ public class UserInfo implements Serializable {
 
     private String email;
 
+    @JsonIgnore
     private String password;
 
     @Override
