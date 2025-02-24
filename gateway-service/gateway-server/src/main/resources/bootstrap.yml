@@ -11,4 +11,4 @@ spring:
       config:
         file-extension: yaml
         shared-configs:
-          -${spring.application.name}-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+          - data-id: ${spring.application.name}-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}

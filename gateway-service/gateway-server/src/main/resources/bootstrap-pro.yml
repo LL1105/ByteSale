@@ -1,0 +1,18 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ip:port
+        namespace: byte-sale-test
+        username: XXXX
+        password: XXXXX
+      config:
+        server-addr: ip:port
+        namespace: byte-sale-test
+        username: XXXXX
+        password: XXXXX
+
+logging:
+  level:
+    root: debug
+    com.alibaba.nacos: warn

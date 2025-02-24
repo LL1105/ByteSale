@@ -42,7 +42,7 @@ public enum BaseCode {
 
     USER_INFO_INVALID_LOGIN_STATUS(20011, "无效的登录状态"),
 
-    USER_INFO_LOGIN_EXPIRED(20010, "登录状态已过期"),
+    USER_INFO_LOGIN_EXPIRED(20012, "登录状态已过期"),
 
     FILE_IS_EMPTY(30001, "文件为空"),
 
